@@ -1,0 +1,29 @@
+package kalah;
+
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+
+public class kalahApplication extends Application<kalahConfiguration> {
+
+    public static void main(final String[] args) throws Exception {
+        new kalahApplication().run(args);
+    }
+
+    @Override
+    public String getName() {
+        return "kalah";
+    }
+
+    @Override
+    public void initialize(final Bootstrap<kalahConfiguration> bootstrap) {
+        // TODO: application initialization
+    }
+
+    @Override
+    public void run(final kalahConfiguration configuration,
+                    final Environment environment) {
+        // TODO: implement application
+    }
+
+}
