@@ -1,30 +1,25 @@
-/*
- * Copyright 2021 ForgeRock AS. All Rights Reserved
- *
- * Use of this code requires a commercial software license with ForgeRock AS.
- * or with one of its affiliates. All use shall be exclusively subject
- * to such license between the licensee and ForgeRock AS.
- */
 package backbase.api;
 
-import java.net.URL;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Representation of a Kalah game.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Game {
 
     private long id;
-    private URL url;
+    private String url;
     private Map<Integer, Integer> status;
 
     public Game() {
+        //Required for Jackson serialisation
     }
 
-    public Game(long id, URL url, Map<Integer, Integer> status) {
+    public Game(long id, String url, Map<Integer, Integer> status) {
         this.id = id;
         this.url = url;
         this.status = status;
@@ -36,7 +31,7 @@ public class Game {
     }
 
     @JsonProperty
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 

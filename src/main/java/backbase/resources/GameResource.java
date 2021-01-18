@@ -1,10 +1,3 @@
-/*
- * Copyright 2021 ForgeRock AS. All Rights Reserved
- *
- * Use of this code requires a commercial software license with ForgeRock AS.
- * or with one of its affiliates. All use shall be exclusively subject
- * to such license between the licensee and ForgeRock AS.
- */
 package backbase.resources;
 
 import javax.ws.rs.POST;
@@ -13,6 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import backbase.api.Game;
 
@@ -24,13 +18,19 @@ import backbase.api.Game;
 public class GameResource {
 
     @POST
-    public String createGame() {
-        return null;
+    public Response createGame() {
+        //Create game, add it to json array file, retrun it
+        final long id = 1234L;
+        final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null);
+        return Response.status(Response.Status.OK).entity(game).build();
     }
 
     @PUT
-    @Path("{id}")
-    public Game move(@PathParam("id") String id) {
+    @Path("{id}/pits/{pitId}")
+    public Response move(@PathParam("id") String id, @PathParam("pitId") String pitId) {
+        //Invalid ID
+        //Invalid PitID
+        //Move will need synchronisation
         return null;
     }
 }
