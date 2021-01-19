@@ -1,5 +1,9 @@
 package backbase.resources;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
+
+import java.util.Random;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -17,12 +21,13 @@ import backbase.api.Game;
 @Produces(MediaType.APPLICATION_JSON)
 public class GameResource {
 
+    private static final int MAX_ID = 9999;
+
     @POST
-    public Response createGame() {
-        //Create game, add it to json array file, retrun it
-        final long id = 1234L;
+    public Response create() {
+        final long id = new Random().nextInt(MAX_ID);
         final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null);
-        return Response.status(Response.Status.OK).entity(game).build();
+        return Response.status(CREATED).entity(game).build();
     }
 
     @PUT

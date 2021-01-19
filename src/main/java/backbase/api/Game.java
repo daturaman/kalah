@@ -19,6 +19,12 @@ public class Game {
         //Required for Jackson serialisation
     }
 
+    /**
+     *  Creates a Game instance with the specified parameters.
+     * @param id unique ID of the game.
+     * @param url URL of the game.
+     * @param status map representing the state of the game board.
+     */
     public Game(long id, String url, Map<Integer, Integer> status) {
         this.id = id;
         this.url = url;

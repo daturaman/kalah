@@ -2,6 +2,7 @@ package backbase;
 
 import backbase.health.GameHealthCheck;
 import backbase.resources.GameResource;
+import backbase.services.GameService;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -29,5 +30,6 @@ public class KalahApplication extends Application<KalahConfiguration> {
         final GameHealthCheck healthCheck = new GameHealthCheck();
         environment.jersey().register(resource);
         environment.jersey().register(healthCheck);
+        environment.lifecycle().manage(new GameService());
     }
 }
