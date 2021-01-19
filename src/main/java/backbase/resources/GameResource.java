@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import backbase.api.Game;
+import backbase.services.GameService;
 
 /**
  * A resource for creating and managing Kalah games.
@@ -21,13 +22,11 @@ import backbase.api.Game;
 @Produces(MediaType.APPLICATION_JSON)
 public class GameResource {
 
-    private static final int MAX_ID = 9999;
+    private final GameService gameService = new GameService();
 
     @POST
     public Response create() {
-        final long id = new Random().nextInt(MAX_ID);
-        final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null);
-        return Response.status(CREATED).entity(game).build();
+        return Response.status(CREATED).entity(gameService.create()).build();
     }
 
     @PUT

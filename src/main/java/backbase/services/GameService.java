@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -30,20 +31,20 @@ public class GameService implements Managed {
     private static final String GAMES_STORE = "/games.json";
     private static final int PLAYER_ONE_KALAH = 7;
     private static final int PLAYER_TWO_KALAH = 14;
+    private static final int MAX_ID = 9999;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Map<Integer, Game> gamesCache = new HashMap<>();
 
     /**
-     * Performs a putsert for new and existing games.
+     * Creates a new game..
      *
-     * @param game
+     * @return a new {@link Game} instance.
      */
-    public void save(Game game) {
-//        try {
-//            objectMapper.writeValue(new File(GAMES_STORE), game);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public Game create() {
+        final int id = new Random().nextInt(MAX_ID);
+        final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null);
+        gamesCache.put(id, game);
+        return game;
     }
 
     public Game move(int gameId, int pitId) {
@@ -52,9 +53,11 @@ public class GameService implements Managed {
             throw new WebApplicationException("Game ID not found", NOT_FOUND);
         }
         //handle errors with move
-        //Wrong player pits
+            //Wrong player pits - need to know which player's turn it is.
         //
-        return null;
+        final Game game = gamesCache.get(gameId);
+        //Make move , rejig stones
+        return game;
     }
 
     private void readFileToCache(InputStream is) {
@@ -69,7 +72,9 @@ public class GameService implements Managed {
 
     @Override
     public void start() throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(GameService.class.getResourceAsStream(GAMES_STORE)))) {
+        //TODO write to a temp file, not resources
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(GameService.class.getResourceAsStream(GAMES_STORE)))) {
             gamesCache = objectMapper.readValue(reader, new TypeReference<Map<Integer, Game>>() {
             });
         } catch (IOException e) {
@@ -80,6 +85,6 @@ public class GameService implements Managed {
 
     @Override
     public void stop() throws Exception {
-
+//TODO write cache to file
     }
 }

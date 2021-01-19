@@ -14,6 +14,7 @@ public class Game {
     private long id;
     private String url;
     private Map<Integer, Integer> status;
+    private boolean playerTwoTurn;
 
     public Game() {
         //Required for Jackson serialisation

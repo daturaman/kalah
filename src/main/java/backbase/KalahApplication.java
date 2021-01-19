@@ -20,7 +20,6 @@ public class KalahApplication extends Application<KalahConfiguration> {
 
     @Override
     public void initialize(final Bootstrap<KalahConfiguration> bootstrap) {
-        // TODO: application initialization
     }
 
     @Override
