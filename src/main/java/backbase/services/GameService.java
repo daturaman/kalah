@@ -42,7 +42,7 @@ public class GameService implements Managed {
     private static final Map<Integer, Integer> playerOneToPlayerTwoPits = Map
             .of(1, 13, 2, 12, 3, 11, 4, 10, 5, 9, 6, 8);
     private static final Map<Integer, Integer> playerTwoToPlayerOnePits = Map
-            .of(8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6);
+            .of(8, 6, 9, 5, 10, 4, 11, 3, 12, 2, 13, 1);
     private static final List<Integer> playerOnePits = List.of(1, 2, 3, 4, 5, 6);
     private static final List<Integer> playerTwoPits = List.of(8, 9, 10, 11, 12, 13);
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -100,7 +100,7 @@ public class GameService implements Managed {
         //Get the stones from the selected pit
         int stoneCount = pits.get(pitId);//TODO throw if empty
         //Pit is now empty
-        pits.compute(pitId, (pit, stones) -> stones = 0);
+        clearPit(pitId, pits);
         //Create a cyclic iterable
         final Iterator<Map.Entry<Integer, Integer>> pitIterator = Iterators.cycle(pits.entrySet());
         //Move to the selected starting pit
@@ -130,9 +130,11 @@ public class GameService implements Managed {
                         break;
                     } else if (currentPit.getValue() == 1 && playerOnePits.contains(currentPitId)) {
                         //Player one kalah gets all stones from opposing pit, plus their own
-                        int bothPlayerStones = playerOneToPlayerTwoPits.get(currentPitId) + 1;
+                        int oppositePit = playerOneToPlayerTwoPits.get(currentPitId);
+                        int bothPlayerStones = pits.get(oppositePit) + 1;
                         pits.compute(PLAYER_ONE_KALAH, (pit, stones) -> stones += bothPlayerStones);
-                        currentPit.setValue(0);
+                        clearPit(currentPitId, pits);
+                        clearPit(oppositePit, pits);
                         playerTwoTurn = true;
                     } else {
                         playerTwoTurn = true;
@@ -142,8 +144,11 @@ public class GameService implements Managed {
                         break;
                     } else if (currentPit.getValue() == 1 && playerTwoPits.contains(currentPitId)) {
                         //Player two kalah gets all stones from opposing pit, plus their own
-                        pits.put(PLAYER_TWO_KALAH, playerTwoToPlayerOnePits.get(currentPitId) + 1);
-                        currentPit.setValue(0);
+                        int oppositePit = playerTwoToPlayerOnePits.get(currentPitId);
+                        int bothPlayerStones = pits.get(oppositePit) + 1;
+                        pits.compute(PLAYER_TWO_KALAH, (pit, stones) -> stones += bothPlayerStones);
+                        clearPit(currentPitId, pits);
+                        clearPit(oppositePit, pits);
                         playerTwoTurn = false;
                     } else {
                         playerTwoTurn = false;
@@ -157,6 +162,14 @@ public class GameService implements Managed {
         final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn, null);
         gamesCache.replace(gameId, updated);
         return updated;
+    }
+
+    private void bankStonesFromOpposingPits(int kalah, Map<Integer, Integer> converter, Map<Integer, Integer> pits) {
+
+    }
+
+    private Integer clearPit(int pitId, Map<Integer, Integer> pits) {
+        return pits.compute(pitId, (pit, stones) -> stones = 0);
     }
 
     private Map<Integer, Integer> createStartingBoard() {
