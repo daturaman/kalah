@@ -11,10 +11,6 @@ import java.util.Random;
 
 import javax.ws.rs.WebApplicationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 
 import backbase.api.Game;
@@ -24,8 +20,6 @@ import backbase.api.Game;
  */
 public class GameService {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
-    private static final String GAMES_STORE = "/games.json";
     private static final int PLAYER_ONE_KALAH = 7;
     private static final int PLAYER_TWO_KALAH = 14;
     private static final int MAX_ID = 9999;
@@ -40,8 +34,7 @@ public class GameService {
     private static final List<Integer> playerOnePits = List.of(1, 2, 3, 4, 5, 6);
     private static final List<Integer> playerTwoPits = List.of(8, 9, 10, 11, 12, 13);
     private static final String GAME_ID_NOT_FOUND = "Game ID not found";
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private Map<Integer, Game> gamesCache = new HashMap<>();
+    private final Map<Integer, Game> gamesCache = new HashMap<>();
 
     /**
      * Retrieve a {@link Game} with the provided ID.
@@ -185,8 +178,8 @@ public class GameService {
         clearPit(oppositePit, pits);
     }
 
-    private Integer clearPit(int pitId, Map<Integer, Integer> pits) {
-        return pits.compute(pitId, (pit, stones) -> stones = 0);
+    private void clearPit(int pitId, Map<Integer, Integer> pits) {
+        pits.compute(pitId, (pit, stones) -> stones = 0);
     }
 
     private Map<Integer, Integer> createStartingBoard() {

@@ -14,15 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import backbase.api.Game;
 
 class GameServiceTest {
 
     private static final int PLAYER_ONE_KALAH = 7;
     private static final int PLAYER_TWO_KALAH = 14;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private GameService gameService;
     private Game game;
 
@@ -32,11 +29,9 @@ class GameServiceTest {
         game = gameService.create();
     }
 
-    //TODO one test?
     @Test
     public void playerOneShouldGetAnotherMoveWhenLastPitSowedIsKalah() {
         game = gameService.move(game.getId(), 1);
-        //TODO assert game status
         assertFalse(game.isPlayerTwoTurn());
         //Player one can make another move
         game = gameService.move(game.getId(), 2);
@@ -48,7 +43,6 @@ class GameServiceTest {
     public void playerTwoShouldGetAnotherMoveWhenLastPitSowedIsKalah() {
         //Player one moves
         game = gameService.move(game.getId(), 2);
-        //TODO assert game status
         assertTrue(game.isPlayerTwoTurn());
         //Player two moves
         game = gameService.move(game.getId(), 13);
@@ -61,11 +55,9 @@ class GameServiceTest {
         assertTrue(game.isPlayerTwoTurn());
 
     }
-    //Is player one's turn when last p2 stone does not land in kalah
-    //Is player two's turn when last p1 stone does not land in kalah
 
     @Test
-    public void playerOneShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
+    public void playerOneShouldBankAllStonesWhenLastPitIsOwnAndEmpty() {
         //Player one moves
         gameService.move(game.getId(), 1);
         //Player one ends up kalah, gets another turn
@@ -90,16 +82,26 @@ class GameServiceTest {
     }
 
     @Test
-    public void playerTwoShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
-        game = gameService.move(game.getId(), 6);
-        game = gameService.move(game.getId(), 8);
-        game = gameService.move(game.getId(), 5);
-        game = gameService.move(game.getId(), 9);
-        game = gameService.move(game.getId(), 4);
-        game = gameService.move(game.getId(), 8);
-        game = gameService.move(game.getId(), 2);
-        game = gameService.move(game.getId(), 12);
-        game = gameService.move(game.getId(), 3);
+    public void playerTwoShouldBankAllStonesWhenLastPitIsOwnAndEmpty() {
+        //Player one moves
+        gameService.move(game.getId(), 6);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves
+        gameService.move(game.getId(), 5);
+        //Player two moves
+        gameService.move(game.getId(), 9);
+        //Player one moves
+        gameService.move(game.getId(), 4);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves
+        gameService.move(game.getId(), 2);
+        //Player two moves
+        gameService.move(game.getId(), 12);
+        //Player one moves
+        gameService.move(game.getId(), 3);
+        //Player two moves
         game = gameService.move(game.getId(), 10);
 
         assertFalse(game.isPlayerTwoTurn());
@@ -110,11 +112,17 @@ class GameServiceTest {
         assertEquals(0, game.getStatus().get(4));
     }
 
-    //when a player runs out of stones
-    //and the stones are tallied and the game is over
-    //TODO Game ends when a player runs out of stones
+    @Test
+    public void shouldEndGameAndRunTallyWhenOnePlayerRunsOutOfStones() {
+        gameService.move(game.getId(), 1);
+        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 6);
+    }
 
-    //ERRORS
     @Test
     public void shouldThrowExceptionWhenPassedInvalidGameId() {
         final WebApplicationException exception = assertThrows(WebApplicationException.class,
