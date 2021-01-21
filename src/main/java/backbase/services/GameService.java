@@ -164,8 +164,13 @@ public class GameService implements Managed {
         return updated;
     }
 
-    private void bankStonesFromOpposingPits(int kalah, Map<Integer, Integer> converter, Map<Integer, Integer> pits) {
-
+    private void bankStonesFromOpposingPits(int currentPitId, int kalah, Map<Integer, Integer> converter, Map<Integer
+            , Integer> pits) {
+        int oppositePit = converter.get(currentPitId);
+        int bothPlayerStones = pits.get(oppositePit) + 1;
+        pits.compute(kalah, (pit, stones) -> stones += bothPlayerStones);
+        clearPit(currentPitId, pits);
+        clearPit(oppositePit, pits);
     }
 
     private Integer clearPit(int pitId, Map<Integer, Integer> pits) {
