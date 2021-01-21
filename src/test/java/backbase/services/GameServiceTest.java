@@ -27,6 +27,7 @@ import backbase.api.Game;
 
 class GameServiceTest {
 
+    private static final int PLAYER_ONE_KALAH = 7;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private GameService gameService;
     private Game game;
@@ -82,13 +83,18 @@ class GameServiceTest {
         //Player one moves
         gameService.move(game.getId(), 1);
         //Player two moves
-        gameService.move(game.getId(), 8);
+        gameService.move(game.getId(), 9);
         //Player one moves
         gameService.move(game.getId(), 2);
         //Player two moves
         gameService.move(game.getId(), 8);
         //Player one moves and captures stones from opposing kalah
-        gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 6);
+        assertTrue(game.isPlayerTwoTurn());
+        int expectedPlayerOneKalahTally = 15;
+        assertEquals(expectedPlayerOneKalahTally, game.getStatus().get(PLAYER_ONE_KALAH));
+        assertEquals(0, game.getStatus().get(2));
+        assertEquals(0, game.getStatus().get(12));
     }
 
     //when a player runs out of stones

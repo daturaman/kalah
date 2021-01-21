@@ -98,7 +98,7 @@ public class GameService implements Managed {
 
         final Map<Integer, Integer> pits = game.getStatus() != null ? game.getStatus() : createStartingBoard();
         //Get the stones from the selected pit
-        int stoneCount = pits.get(pitId);
+        int stoneCount = pits.get(pitId);//TODO throw if empty
         //Pit is now empty
         pits.compute(pitId, (pit, stones) -> stones = 0);
         //Create a cyclic iterable
@@ -112,12 +112,13 @@ public class GameService implements Managed {
         }
         //Sow
         for (; stoneCount > 0; stoneCount--) {
-            final Map.Entry<Integer, Integer> currentPit = pitIterator.next();
+            Map.Entry<Integer, Integer> currentPit = pitIterator.next();
             Integer currentPitId = currentPit.getKey();
             //Skip opposing player's kalah
             if ((!playerTwoTurn && currentPitId == PLAYER_TWO_KALAH) ||
                     playerTwoTurn && currentPitId == PLAYER_ONE_KALAH) {
-                continue;
+                currentPit = pitIterator.next();
+                currentPitId = currentPit.getKey();
             }
 
             currentPit.setValue(currentPit.getValue() + 1);
@@ -129,8 +130,10 @@ public class GameService implements Managed {
                         break;
                     } else if (currentPit.getValue() == 1 && playerOnePits.contains(currentPitId)) {
                         //Player one kalah gets all stones from opposing pit, plus their own
-                        pits.put(PLAYER_ONE_KALAH, playerOneToPlayerTwoPits.get(currentPitId) + 1);
+                        int bothPlayerStones = playerOneToPlayerTwoPits.get(currentPitId) + 1;
+                        pits.compute(PLAYER_ONE_KALAH, (pit, stones) -> stones += bothPlayerStones);
                         currentPit.setValue(0);
+                        playerTwoTurn = true;
                     } else {
                         playerTwoTurn = true;
                     }
@@ -141,6 +144,7 @@ public class GameService implements Managed {
                         //Player two kalah gets all stones from opposing pit, plus their own
                         pits.put(PLAYER_TWO_KALAH, playerTwoToPlayerOnePits.get(currentPitId) + 1);
                         currentPit.setValue(0);
+                        playerTwoTurn = false;
                     } else {
                         playerTwoTurn = false;
                     }
