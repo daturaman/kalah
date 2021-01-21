@@ -45,13 +45,29 @@ public class GameService implements Managed {
             .of(8, 6, 9, 5, 10, 4, 11, 3, 12, 2, 13, 1);
     private static final List<Integer> playerOnePits = List.of(1, 2, 3, 4, 5, 6);
     private static final List<Integer> playerTwoPits = List.of(8, 9, 10, 11, 12, 13);
+    private static final String GAME_ID_NOT_FOUND = "Game ID not found";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Map<Integer, Game> gamesCache = new HashMap<>();
 
+    /**
+     * Retrieve a {@link Game} with the provided ID.
+     *
+     * @param gameId ID of the game to retrieve.
+     * @return the Game specified by the ID.
+     */
     public Game read(int gameId) {
-        return gamesCache.get(gameId);
+        final Game game = gamesCache.get(gameId);
+        if (game == null) {
+            throw new WebApplicationException(GAME_ID_NOT_FOUND, NOT_FOUND);
+        }
+        return game;
     }
 
+    /**
+     * Retrieves all the games.
+     *
+     * @return a Map of all existing games.
+     */
     public Map<Integer, Game> read() {
         return gamesCache;
     }
@@ -68,6 +84,13 @@ public class GameService implements Managed {
         return game;
     }
 
+    /**
+     * Executes a single move in a game of Kalah.
+     *
+     * @param gameId the ID of  the game.
+     * @param pitId the pit from which to begin sowing.
+     * @return the game with its status updated after executing the requested move.
+     */
     public Game move(int gameId, int pitId) {
         //validate move
         if (!gamesCache.containsKey(gameId)) {
@@ -98,7 +121,10 @@ public class GameService implements Managed {
 
         final Map<Integer, Integer> pits = game.getStatus() != null ? game.getStatus() : createStartingBoard();
         //Get the stones from the selected pit
-        int stoneCount = pits.get(pitId);//TODO throw if empty
+        int stoneCount = pits.get(pitId);
+        if (stoneCount == 0) {
+            throw new WebApplicationException("You chose an empty pit", BAD_REQUEST);
+        }
         //Pit is now empty
         clearPit(pitId, pits);
         //Create a cyclic iterable
@@ -130,11 +156,7 @@ public class GameService implements Managed {
                         break;
                     } else if (currentPit.getValue() == 1 && playerOnePits.contains(currentPitId)) {
                         //Player one kalah gets all stones from opposing pit, plus their own
-                        int oppositePit = playerOneToPlayerTwoPits.get(currentPitId);
-                        int bothPlayerStones = pits.get(oppositePit) + 1;
-                        pits.compute(PLAYER_ONE_KALAH, (pit, stones) -> stones += bothPlayerStones);
-                        clearPit(currentPitId, pits);
-                        clearPit(oppositePit, pits);
+                        bankStonesFromOpposingPits(currentPitId, PLAYER_ONE_KALAH, playerOneToPlayerTwoPits, pits);
                         playerTwoTurn = true;
                     } else {
                         playerTwoTurn = true;
@@ -144,11 +166,7 @@ public class GameService implements Managed {
                         break;
                     } else if (currentPit.getValue() == 1 && playerTwoPits.contains(currentPitId)) {
                         //Player two kalah gets all stones from opposing pit, plus their own
-                        int oppositePit = playerTwoToPlayerOnePits.get(currentPitId);
-                        int bothPlayerStones = pits.get(oppositePit) + 1;
-                        pits.compute(PLAYER_TWO_KALAH, (pit, stones) -> stones += bothPlayerStones);
-                        clearPit(currentPitId, pits);
-                        clearPit(oppositePit, pits);
+                        bankStonesFromOpposingPits(currentPitId, PLAYER_TWO_KALAH, playerTwoToPlayerOnePits, pits);
                         playerTwoTurn = false;
                     } else {
                         playerTwoTurn = false;
