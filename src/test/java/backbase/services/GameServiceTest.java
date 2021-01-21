@@ -7,12 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Map;
-
 import javax.ws.rs.WebApplicationException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backbase.api.Game;
@@ -28,6 +21,7 @@ import backbase.api.Game;
 class GameServiceTest {
 
     private static final int PLAYER_ONE_KALAH = 7;
+    private static final int PLAYER_TWO_KALAH = 14;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private GameService gameService;
     private Game game;
@@ -95,34 +89,30 @@ class GameServiceTest {
         assertEquals(0, game.getStatus().get(12));
     }
 
-    //TODO
     @Test
     public void playerTwoShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
-        //Player one moves
-        gameService.move(game.getId(), 1);
-        //Player one ends up kalah, gets another turn
-        gameService.move(game.getId(), 5);
-        //Player two moves
-        gameService.move(game.getId(), 8);
-        //Player one moves
-        gameService.move(game.getId(), 1);
-        //Player two moves
-        gameService.move(game.getId(), 9);
-        //Player one moves
-        gameService.move(game.getId(), 2);
-        //Player two moves
-        gameService.move(game.getId(), 8);
-        //Player one moves and captures stones from opposing kalah
         game = gameService.move(game.getId(), 6);
-        assertTrue(game.isPlayerTwoTurn());
-        int expectedPlayerOneKalahTally = 15;
-        assertEquals(expectedPlayerOneKalahTally, game.getStatus().get(PLAYER_ONE_KALAH));
-        assertEquals(0, game.getStatus().get(2));
-        assertEquals(0, game.getStatus().get(12));
+        game = gameService.move(game.getId(), 8);
+        game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 9);
+        game = gameService.move(game.getId(), 4);
+        game = gameService.move(game.getId(), 8);
+        game = gameService.move(game.getId(), 2);
+        game = gameService.move(game.getId(), 12);
+        game = gameService.move(game.getId(), 3);
+        game = gameService.move(game.getId(), 10);
+
+        assertFalse(game.isPlayerTwoTurn());
+
+        int expectedPlayerTwoKalahTally = 9;
+        assertEquals(expectedPlayerTwoKalahTally, game.getStatus().get(PLAYER_TWO_KALAH));
+        assertEquals(0, game.getStatus().get(10));
+        assertEquals(0, game.getStatus().get(4));
     }
 
     //when a player runs out of stones
     //and the stones are tallied and the game is over
+    //TODO Game ends when a player runs out of stones
 
     //ERRORS
     @Test
