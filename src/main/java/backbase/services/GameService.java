@@ -40,7 +40,7 @@ public class GameService implements Managed {
     private static final int PLAYER_TWO_FIRST_PIT = 8;
     private static final int STARTING_STONES = 6;
     private static final Map<Integer, Integer> playerOneToPlayerTwoPits = Map
-            .of(1, 8, 2, 9, 3, 10, 4, 11, 5, 12, 6, 13);
+            .of(1, 13, 2, 12, 3, 11, 4, 10, 5, 9, 6, 8);
     private static final Map<Integer, Integer> playerTwoToPlayerOnePits = Map
             .of(8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6);
     private static final List<Integer> playerOnePits = List.of(1, 2, 3, 4, 5, 6);
