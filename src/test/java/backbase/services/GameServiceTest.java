@@ -115,12 +115,21 @@ class GameServiceTest {
     @Test
     public void shouldEndGameAndRunTallyWhenOnePlayerRunsOutOfStones() {
         gameService.move(game.getId(), 1);
-        gameService.move(game.getId(), 6);
-        gameService.move(game.getId(), 6);
-        gameService.move(game.getId(), 6);
-        gameService.move(game.getId(), 6);
-        gameService.move(game.getId(), 6);
-        gameService.move(game.getId(), 6);
+        gameService.move(game.getId(), 5);
+        gameService.move(game.getId(), 8);
+        gameService.move(game.getId(), 1);
+        gameService.move(game.getId(), 9);
+        gameService.move(game.getId(), 2);
+        gameService.move(game.getId(), 8);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 8);
+        System.out.println(game.getStatus());
+        game = gameService.move(game.getId(), 4);
+        System.out.println(game.getStatus());
+        game = gameService.move(game.getId(), 8);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 5);
+        System.out.println(game.getStatus());
     }
 
     @Test
