@@ -123,12 +123,28 @@ class GameServiceTest {
         gameService.move(game.getId(), 8);
         game = gameService.move(game.getId(), 6);
         game = gameService.move(game.getId(), 8);
-        System.out.println(game.getStatus());
         game = gameService.move(game.getId(), 4);
-        System.out.println(game.getStatus());
         game = gameService.move(game.getId(), 8);
         game = gameService.move(game.getId(), 6);
         game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 1);
+        game = gameService.move(game.getId(), 12);
+        game = gameService.move(game.getId(), 3);
+        game = gameService.move(game.getId(), 12);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 11);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 13);
+        game = gameService.move(game.getId(), 6);
+        game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 12);
+        game = gameService.move(game.getId(), 10);
+        game = gameService.move(game.getId(), 5);
+        game = gameService.move(game.getId(), 10);
+        game = gameService.move(game.getId(), 3);
         System.out.println(game.getStatus());
     }
 
