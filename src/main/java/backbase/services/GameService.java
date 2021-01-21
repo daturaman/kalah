@@ -74,10 +74,14 @@ public class GameService implements Managed {
         }
 
         final Game game = gamesCache.get(gameId);
-        if (!game.isPlayerTwoTurn() && pitId > PLAYER_ONE_KALAH) {
+        //TODO simply return the game if it has ended (304?)
+
+
+        boolean playerTwoTurn = game.isPlayerTwoTurn();
+        if (!playerTwoTurn && pitId > PLAYER_ONE_KALAH) {
             throw new WebApplicationException("Player one - please select pits numbered 1 to 6", BAD_REQUEST);
         }
-        if (game.isPlayerTwoTurn() && pitId < PLAYER_TWO_FIRST_PIT) {
+        if (playerTwoTurn && pitId < PLAYER_TWO_FIRST_PIT) {
             throw new WebApplicationException("Player two - please select pits numbered 8 to 13", BAD_REQUEST);
         }
 
@@ -87,28 +91,38 @@ public class GameService implements Managed {
         //Pit is now empty
         pits.compute(pitId, (pit, stones) -> stones = 0);
         //Create a cyclic iterable
-        final Iterator<Map.Entry<Integer, Integer>> cycle = Iterators.cycle(pits.entrySet());
+        final Iterator<Map.Entry<Integer, Integer>> pitIterator = Iterators.cycle(pits.entrySet());
         //Move to the selected starting pit
         while (true) {
-            final Map.Entry<Integer, Integer> next = cycle.next();
+            final Map.Entry<Integer, Integer> next = pitIterator.next();
             if (next.getKey() == pitId) {
                 break;
             }
         }
         //Sow
-        while (stoneCount > 0) {
-            final Map.Entry<Integer, Integer> pit = cycle.next();
-            if ((!game.isPlayerTwoTurn() && pit.getKey() == PLAYER_TWO_KALAH) ||
-                    game.isPlayerTwoTurn() && pit.getKey() == PLAYER_ONE_KALAH) {
+        for (; stoneCount > 0; stoneCount--) {
+            final Map.Entry<Integer, Integer> pit = pitIterator.next();
+            //Skip opposing player's kalah
+            if ((!playerTwoTurn && pit.getKey() == PLAYER_TWO_KALAH) ||
+                    playerTwoTurn && pit.getKey() == PLAYER_ONE_KALAH) {
                 continue;
             }
-            System.out.println(pit.getKey());
             pit.setValue(pit.getValue() + 1);
-            stoneCount--;
+            if (stoneCount == 1) {
+                if (!playerTwoTurn && pit.getKey() == PLAYER_ONE_KALAH) {
+                    playerTwoTurn = false;
+                }
+                else if (playerTwoTurn && pit.getKey() == PLAYER_TWO_KALAH) {
+                    playerTwoTurn = true;
+                } else {
+                    playerTwoTurn = !playerTwoTurn;
+                }
+            }
         }
 
-        final boolean playerTwoTurn = true;
-        return new Game(game.getId(), game.getUrl(), pits, playerTwoTurn);
+        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn);
+        gamesCache.replace(gameId, updated);
+        return updated;
     }
 
     private Map<Integer, Integer> createStartingBoard() {
@@ -116,8 +130,9 @@ public class GameService implements Managed {
         for (int i = 1; i <= PLAYER_TWO_KALAH; i++) {
             if (i == PLAYER_ONE_KALAH || i == PLAYER_TWO_KALAH) {
                 board.put(i, 0);
+            } else {
+                board.put(i, STARTING_STONES);
             }
-            board.put(i, STARTING_STONES);
         }
         return board;
     }
