@@ -36,7 +36,8 @@ class GameServiceTest {
         gameService = new GameService();
         game = gameService.create();
     }
-//TODO one test?
+
+    //TODO one test?
     @Test
     public void playerOneShouldGetAnotherMoveWhenLastPitSowedIsKalah() {
         game = gameService.move(game.getId(), 1);
@@ -72,7 +73,22 @@ class GameServiceTest {
     //then  the player gets all stones from both pits
     @Test
     public void playerOneShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
-
+        //Player one moves
+        gameService.move(game.getId(), 1);
+        //Player one ends up kalah, gets another turn
+        gameService.move(game.getId(), 5);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves
+        gameService.move(game.getId(), 1);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves
+        gameService.move(game.getId(), 2);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves and captures stones from opposing kalah
+        gameService.move(game.getId(), 6);
     }
 
     //when a player runs out of stones
@@ -125,6 +141,7 @@ class GameServiceTest {
         assertEquals(BAD_REQUEST, exception.getResponse().getStatusInfo());
 
     }
+
     @ParameterizedTest
     @ValueSource(ints = {7, 14})
     public void shouldThrowExceptionWhenSelectedPitIsKalah(int kalahPit) {
@@ -135,7 +152,6 @@ class GameServiceTest {
         assertEquals(expectedError, actualError);
         assertEquals(BAD_REQUEST, exception.getResponse().getStatusInfo());
     }
-
 
 
     private void readGames() throws IOException {
