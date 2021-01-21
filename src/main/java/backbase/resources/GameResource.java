@@ -24,6 +24,11 @@ public class GameResource {
 
     private final GameService gameService = new GameService();
 
+    /**
+     * Endpoints that creates a new {@link Game} with a randomly generated ID.
+     *
+     * @return a {@link Response} containing the game details as a json object.
+     */
     @POST
     public Response create() {
         return Response.status(CREATED).entity(gameService.create()).build();

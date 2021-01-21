@@ -112,18 +112,21 @@ public class GameService {
         if (stoneCount == 0) {
             throw new WebApplicationException("You chose an empty pit", BAD_REQUEST);
         }
-        //Pit is now empty
+
         clearPit(pitId, pits);
-        //Create a cyclic iterable
         final Iterator<Map.Entry<Integer, Integer>> pitIterator = Iterators.cycle(pits.entrySet());
-        //Move to the selected starting pit
-        while (true) {
-            final Map.Entry<Integer, Integer> next = pitIterator.next();
-            if (next.getKey() == pitId) {
-                break;
-            }
-        }
-        //Sow
+        cycleToStart(pitId, pitIterator);
+        playerTwoTurn = sowPits(playerTwoTurn, pits, stoneCount, pitIterator);
+
+        //TODO if player has no stones left, add other player's remaining stones to their kalah and perform final tally
+
+        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn, null);
+        gamesCache.replace(gameId, updated);
+        return updated;
+    }
+
+    private boolean sowPits(boolean playerTwoTurn, Map<Integer, Integer> pits, int stoneCount,
+            Iterator<Map.Entry<Integer, Integer>> pitIterator) {
         for (; stoneCount > 0; stoneCount--) {
             Map.Entry<Integer, Integer> currentPit = pitIterator.next();
             Integer currentPitId = currentPit.getKey();
@@ -161,12 +164,16 @@ public class GameService {
                 }
             }
         }
+        return playerTwoTurn;
+    }
 
-        //TODO if player has no stones left, add other player's remaining stones to their kalah and perform final tally
-
-        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn, null);
-        gamesCache.replace(gameId, updated);
-        return updated;
+    private void cycleToStart(int pitId, Iterator<Map.Entry<Integer, Integer>> pitIterator) {
+        while (true) {
+            final Map.Entry<Integer, Integer> next = pitIterator.next();
+            if (next.getKey() == pitId) {
+                break;
+            }
+        }
     }
 
     private void bankStonesFromOpposingPits(int currentPitId, int kalah, Map<Integer, Integer> converter, Map<Integer
