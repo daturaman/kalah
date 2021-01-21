@@ -70,10 +70,34 @@ class GameServiceTest {
     //Is player one's turn when last p2 stone does not land in kalah
     //Is player two's turn when last p1 stone does not land in kalah
 
-    //when the stone lands in an empty player pit and the other player's pit is not empty
-    //then  the player gets all stones from both pits
     @Test
     public void playerOneShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
+        //Player one moves
+        gameService.move(game.getId(), 1);
+        //Player one ends up kalah, gets another turn
+        gameService.move(game.getId(), 5);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves
+        gameService.move(game.getId(), 1);
+        //Player two moves
+        gameService.move(game.getId(), 9);
+        //Player one moves
+        gameService.move(game.getId(), 2);
+        //Player two moves
+        gameService.move(game.getId(), 8);
+        //Player one moves and captures stones from opposing kalah
+        game = gameService.move(game.getId(), 6);
+        assertTrue(game.isPlayerTwoTurn());
+        int expectedPlayerOneKalahTally = 15;
+        assertEquals(expectedPlayerOneKalahTally, game.getStatus().get(PLAYER_ONE_KALAH));
+        assertEquals(0, game.getStatus().get(2));
+        assertEquals(0, game.getStatus().get(12));
+    }
+
+    //TODO
+    @Test
+    public void playerTwoShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
         //Player one moves
         gameService.move(game.getId(), 1);
         //Player one ends up kalah, gets another turn
@@ -157,15 +181,5 @@ class GameServiceTest {
         final String expectedError = "You can't pick from a kalah!";
         assertEquals(expectedError, actualError);
         assertEquals(BAD_REQUEST, exception.getResponse().getStatusInfo());
-    }
-
-
-    private void readGames() throws IOException {
-        final InputStream is = GameServiceTest.class.getResourceAsStream("/games.json");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            final Map<Integer, Game> games = objectMapper
-                    .readValue(reader, new TypeReference<Map<Integer, Game>>() {
-                    });
-        }
     }
 }

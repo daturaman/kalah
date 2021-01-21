@@ -3,7 +3,6 @@ package backbase.resources;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 
-import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,9 +43,8 @@ public class GameResource {
 
     @PUT
     @Path("{id}/pits/{pitId}")
-    public Response move(@PathParam("id") @NotEmpty String id, @PathParam("pitId") @NotEmpty String pitId) {
-        //Invalid ID
-        //Invalid PitID
-        return null;
+    public Response move(@PathParam("id") int id, @PathParam("pitId") int pitId) {
+        final Game game = gameService.move(id, pitId);
+        return Response.status(OK).entity(game).build();
     }
 }

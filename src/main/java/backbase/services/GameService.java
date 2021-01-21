@@ -3,10 +3,6 @@ package backbase.services;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,17 +14,15 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 
 import backbase.api.Game;
-import io.dropwizard.lifecycle.Managed;
 
 /**
  * Service for managing games of Kalah.
  */
-public class GameService implements Managed {
+public class GameService {
 
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
     private static final String GAMES_STORE = "/games.json";
@@ -205,34 +199,5 @@ public class GameService implements Managed {
             }
         }
         return board;
-    }
-
-    private void readFileToCache(InputStream is) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            gamesCache = objectMapper.readValue(reader, new TypeReference<Map<Integer, Game>>() {
-            });
-        } catch (IOException e) {
-            logger.error("Exception thrown whilst attempting to populate games cache: ", e);
-            throw new IllegalStateException("Unable to populate games cache.");
-        }
-    }
-
-    @Override
-    public void start() throws Exception {
-        //TODO or just  store to memory
-        //TODO write to a temp file, not resources
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(GameService.class.getResourceAsStream(GAMES_STORE)))) {
-            gamesCache = objectMapper.readValue(reader, new TypeReference<Map<Integer, Game>>() {
-            });
-        } catch (IOException e) {
-            logger.error("Exception thrown whilst attempting to populate games cache: ", e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void stop() throws Exception {
-//TODO write cache to file
     }
 }
