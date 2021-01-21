@@ -15,6 +15,7 @@ public class Game {
     private int id;
     private String url;
     private Map<Integer, Integer> status;
+    private String result;
     @JsonIgnore
     private boolean playerTwoTurn;
 
@@ -28,11 +29,13 @@ public class Game {
      * @param url URL of the game.
      * @param status map representing the state of the game board.
      * @param playerTwoTurn indicates if this is player two's turn.
+     * @param result will display the provided message if the game has ended.
      */
-    public Game(int id, String url, Map<Integer, Integer> status, boolean playerTwoTurn) {
+    public Game(int id, String url, Map<Integer, Integer> status, boolean playerTwoTurn, String result) {
         this.id = id;
         this.url = url;//TODO make a URL
         this.status = status;
+        this.result = result;
         this.playerTwoTurn = playerTwoTurn;
     }
 

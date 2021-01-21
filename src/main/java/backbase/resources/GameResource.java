@@ -47,7 +47,6 @@ public class GameResource {
     public Response move(@PathParam("id") @NotEmpty String id, @PathParam("pitId") @NotEmpty String pitId) {
         //Invalid ID
         //Invalid PitID
-        //Move will need synchronisation
         return null;
     }
 }

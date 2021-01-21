@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -38,6 +39,12 @@ public class GameService implements Managed {
     private static final int LAST_PIT = 13;
     private static final int PLAYER_TWO_FIRST_PIT = 8;
     private static final int STARTING_STONES = 6;
+    private static final Map<Integer, Integer> playerOneToPlayerTwoPits = Map
+            .of(1, 8, 2, 9, 3, 10, 4, 11, 5, 12, 6, 13);
+    private static final Map<Integer, Integer> playerTwoToPlayerOnePits = Map
+            .of(8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6);
+    private static final List<Integer> playerOnePits = List.of(1, 2, 3, 4, 5, 6);
+    private static final List<Integer> playerTwoPits = List.of(8, 9, 10, 11, 12, 13);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Map<Integer, Game> gamesCache = new HashMap<>();
 
@@ -56,7 +63,7 @@ public class GameService implements Managed {
      */
     public Game create() {
         final int id = new Random().nextInt(MAX_ID);
-        final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null, false);
+        final Game game = new Game(id, "http://localtest.me:8080/games/" + id, null, false, null);
         gamesCache.putIfAbsent(id, game);
         return game;
     }
@@ -75,7 +82,11 @@ public class GameService implements Managed {
 
         final Game game = gamesCache.get(gameId);
         //TODO simply return the game if it has ended (304?)
-
+//        if (game.getStatus().entrySet().stream().filter(pit -> pit.getKey() != PLAYER_ONE_KALAH)
+//                .filter(pit -> pit.getKey() != PLAYER_TWO_KALAH).map(
+//                        Map.Entry::getValue).count() == 0) {
+//            return game;//TODO Exception when game has ended?
+//        }
 
         boolean playerTwoTurn = game.isPlayerTwoTurn();
         if (!playerTwoTurn && pitId > PLAYER_ONE_KALAH) {
@@ -101,26 +112,45 @@ public class GameService implements Managed {
         }
         //Sow
         for (; stoneCount > 0; stoneCount--) {
-            final Map.Entry<Integer, Integer> pit = pitIterator.next();
+            final Map.Entry<Integer, Integer> currentPit = pitIterator.next();
+            Integer currentPitId = currentPit.getKey();
             //Skip opposing player's kalah
-            if ((!playerTwoTurn && pit.getKey() == PLAYER_TWO_KALAH) ||
-                    playerTwoTurn && pit.getKey() == PLAYER_ONE_KALAH) {
+            if ((!playerTwoTurn && currentPitId == PLAYER_TWO_KALAH) ||
+                    playerTwoTurn && currentPitId == PLAYER_ONE_KALAH) {
                 continue;
             }
-            pit.setValue(pit.getValue() + 1);
+
+            currentPit.setValue(currentPit.getValue() + 1);
+
+            //Evaluate where last stone placed
             if (stoneCount == 1) {
-                if (!playerTwoTurn && pit.getKey() == PLAYER_ONE_KALAH) {
-                    playerTwoTurn = false;
-                }
-                else if (playerTwoTurn && pit.getKey() == PLAYER_TWO_KALAH) {
-                    playerTwoTurn = true;
+                if (!playerTwoTurn) {
+                    if (currentPitId == PLAYER_ONE_KALAH) {
+                        break;
+                    } else if (currentPit.getValue() == 1 && playerOnePits.contains(currentPitId)) {
+                        //Player one kalah gets all stones from opposing pit, plus their own
+                        pits.put(PLAYER_ONE_KALAH, playerOneToPlayerTwoPits.get(currentPitId) + 1);
+                        currentPit.setValue(0);
+                    } else {
+                        playerTwoTurn = true;
+                    }
                 } else {
-                    playerTwoTurn = !playerTwoTurn;
+                    if (currentPitId == PLAYER_TWO_KALAH) {
+                        break;
+                    } else if (currentPit.getValue() == 1 && playerTwoPits.contains(currentPitId)) {
+                        //Player two kalah gets all stones from opposing pit, plus their own
+                        pits.put(PLAYER_TWO_KALAH, playerTwoToPlayerOnePits.get(currentPitId) + 1);
+                        currentPit.setValue(0);
+                    } else {
+                        playerTwoTurn = false;
+                    }
                 }
             }
         }
 
-        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn);
+        //TODO if player has no stones left, add other player's remaining stones to their kalah and perform final tally
+
+        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn, null);
         gamesCache.replace(gameId, updated);
         return updated;
     }

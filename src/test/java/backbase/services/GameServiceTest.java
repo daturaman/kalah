@@ -67,8 +67,13 @@ class GameServiceTest {
     }
     //Is player one's turn when last p2 stone does not land in kalah
     //Is player two's turn when last p1 stone does not land in kalah
+
     //when the stone lands in an empty player pit and the other player's pit is not empty
     //then  the player gets all stones from both pits
+    @Test
+    public void playerOneShouldBankAllStonesFromRankWhenLastPitIsOwnAndEmpty() {
+
+    }
 
     //when a player runs out of stones
     //and the stones are tallied and the game is over
