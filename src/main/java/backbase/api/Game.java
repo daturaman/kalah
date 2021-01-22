@@ -19,12 +19,16 @@ public class Game {
     @JsonIgnore
     private boolean playerTwoTurn;
 
+    /**
+     * Default constructor.
+     */
     public Game() {
         //Required for Jackson serialisation
     }
 
     /**
-     *  Creates a Game instance with the specified parameters.
+     * Creates a Game instance with the specified parameters.
+     *
      * @param id unique ID of the game.
      * @param url URL of the game.
      * @param status map representing the state of the game board.
@@ -39,26 +43,51 @@ public class Game {
         this.playerTwoTurn = playerTwoTurn;
     }
 
+    /**
+     * Gets the game ID.
+     *
+     * @return the game ID.
+     */
     @JsonProperty
     public int getId() {
         return id;
     }
 
+    /**
+     * Gets the game URL.
+     *
+     * @return the game URL.
+     */
     @JsonProperty
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Gets the status of the game.
+     *
+     * @return the current status of the game.
+     */
     @JsonProperty
     public Map<Integer, Integer> getStatus() {
         return status;
     }
 
+    /**
+     * Gets the result of the game, if it has been completed. Returns null if it is still in progress.
+     *
+     * @return the result of the game.
+     */
     @JsonProperty
     public String getResult() {
         return result;
     }
 
+    /**
+     * Indicates if the next turn is player two's.
+     *
+     * @return true if it is player two's turn.
+     */
     public boolean isPlayerTwoTurn() {
         return playerTwoTurn;
     }
