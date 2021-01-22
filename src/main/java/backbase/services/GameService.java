@@ -91,12 +91,10 @@ public class GameService {
         }
 
         final Game game = gamesCache.get(gameId);
-        //TODO simply return the game if it has ended (304?)
-//        if (game.getStatus().entrySet().stream().filter(pit -> pit.getKey() != PLAYER_ONE_KALAH)
-//                .filter(pit -> pit.getKey() != PLAYER_TWO_KALAH).map(
-//                        Map.Entry::getValue).count() == 0) {
-//            return game;//TODO Exception when game has ended?
-//        }
+
+        if (game.getResult() != null) {
+            return game;
+        }
 
         boolean playerTwoTurn = game.isPlayerTwoTurn();
         if (!playerTwoTurn && pitId > PLAYER_ONE_KALAH) {
@@ -122,13 +120,28 @@ public class GameService {
         return updated;
     }
 
-    private String getGameResult(Map<Integer, Integer> pits, String result, List<Integer> playerPits) {
-        if (pits.entrySet().stream().filter(pit -> playerPits.contains(pit.getKey())).allMatch(pit -> pit.getValue() == 0)) {
-            final long playerOneTotal = pits.keySet().stream().filter(playerOnePits::contains).count() + pits.get(PLAYER_ONE_KALAH);
-            final long playerTwoTotal = pits.keySet().stream().filter(playerTwoPits::contains).count() + pits.get(PLAYER_TWO_KALAH);
+    private String getGameResult(Map<Integer, Integer> pits) {
+        String result = null;
+        if (pitsAreEmpty(pits, playerOnePits) || pitsAreEmpty(pits, playerTwoPits)) {
+            final long playerOneTotal = pits.keySet().stream().filter(playerOnePits::contains).count() + pits
+                    .get(PLAYER_ONE_KALAH);
+            final long playerTwoTotal = pits.keySet().stream().filter(playerTwoPits::contains).count() + pits
+                    .get(PLAYER_TWO_KALAH);
             result = playerOneTotal > playerTwoTotal ? "Player one wins!!" : "Player two wins!!";
+            pits.replaceAll((pit, stones) -> {
+                if (pit == PLAYER_ONE_KALAH) {
+                    stones = Math.toIntExact(playerOneTotal);
+                } else if (pit == PLAYER_TWO_KALAH) {
+                    stones = Math.toIntExact(playerTwoTotal);
+                }
+            });
         }
         return result;
+    }
+
+    private boolean pitsAreEmpty(Map<Integer, Integer> pits, List<Integer> playerPits) {
+        return pits.entrySet().stream().filter(pit -> playerPits.contains(pit.getKey()))
+                   .allMatch(pit -> pit.getValue() == 0);
     }
 
     private Game sowPits(Game game, Map<Integer, Integer> pits, int stoneCount,
@@ -158,7 +171,6 @@ public class GameService {
                     } else {
                         playerTwoTurn = true;
                     }
-                    result = getGameResult(pits, result, playerOnePits);
                 } else {
                     if (currentPitId == PLAYER_TWO_KALAH) {
                         break;
@@ -169,11 +181,10 @@ public class GameService {
                     } else {
                         playerTwoTurn = false;
                     }
-                    result = getGameResult(pits, result, playerTwoPits);
                 }
             }
         }
-        return new Game(game.getId(), game.getUrl(), pits, playerTwoTurn, result);
+        return new Game(game.getId(), game.getUrl(), pits, playerTwoTurn, getGameResult(pits));
     }
 
     private void cycleToStart(int pitId, Iterator<Map.Entry<Integer, Integer>> pitIterator) {

@@ -105,7 +105,6 @@ class GameServiceTest {
         game = gameService.move(game.getId(), 10);
 
         assertFalse(game.isPlayerTwoTurn());
-
         int expectedPlayerTwoKalahTally = 9;
         assertEquals(expectedPlayerTwoKalahTally, game.getStatus().get(PLAYER_TWO_KALAH));
         assertEquals(0, game.getStatus().get(10));
@@ -152,8 +151,6 @@ class GameServiceTest {
         game = gameService.move(game.getId(), 2);
         game = gameService.move(game.getId(), 3);
         game = gameService.move(game.getId(), 13);
-        System.out.println(game.getStatus());
-        System.out.println(game.isPlayerTwoTurn() ? "PLayer two turn" : "Player one turn");
         assertEquals("Player one wins!!" , game.getResult());;
     }
 
