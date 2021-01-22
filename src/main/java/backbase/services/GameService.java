@@ -120,25 +120,6 @@ public class GameService {
         return updated;
     }
 
-    private String getGameResult(Map<Integer, Integer> pits) {
-        String result = null;
-        if (pitsAreEmpty(pits, playerOnePits) || pitsAreEmpty(pits, playerTwoPits)) {
-            final long playerOneTotal = pits.keySet().stream().filter(playerOnePits::contains).count() + pits
-                    .get(PLAYER_ONE_KALAH);
-            final long playerTwoTotal = pits.keySet().stream().filter(playerTwoPits::contains).count() + pits
-                    .get(PLAYER_TWO_KALAH);
-            result = playerOneTotal > playerTwoTotal ? "Player one wins!!" : "Player two wins!!";
-            pits.replaceAll((pit, stones) -> {
-                if (pit == PLAYER_ONE_KALAH) {
-                    stones = Math.toIntExact(playerOneTotal);
-                } else if (pit == PLAYER_TWO_KALAH) {
-                    stones = Math.toIntExact(playerTwoTotal);
-                }
-            });
-        }
-        return result;
-    }
-
     private boolean pitsAreEmpty(Map<Integer, Integer> pits, List<Integer> playerPits) {
         return pits.entrySet().stream().filter(pit -> playerPits.contains(pit.getKey()))
                    .allMatch(pit -> pit.getValue() == 0);
@@ -196,8 +177,8 @@ public class GameService {
         }
     }
 
-    private void bankStonesFromOpposingPits(int currentPitId, int kalah, Map<Integer, Integer> converter, Map<Integer
-            , Integer> pits) {
+    private void bankStonesFromOpposingPits(int currentPitId, int kalah, Map<Integer, Integer> converter,
+            Map<Integer, Integer> pits) {
         int oppositePit = converter.get(currentPitId);
         int bothPlayerStones = pits.get(oppositePit) + 1;
         pits.compute(kalah, (pit, stones) -> stones += bothPlayerStones);
@@ -219,5 +200,26 @@ public class GameService {
             }
         }
         return board;
+    }
+
+    private String getGameResult(Map<Integer, Integer> pits) {
+        String result = null;
+        if (pitsAreEmpty(pits, playerOnePits) || pitsAreEmpty(pits, playerTwoPits)) {
+            final long playerOneTotal = pits.keySet().stream().filter(playerOnePits::contains).count() + pits
+                    .get(PLAYER_ONE_KALAH);
+            final long playerTwoTotal = pits.keySet().stream().filter(playerTwoPits::contains).count() + pits
+                    .get(PLAYER_TWO_KALAH);
+            result = playerOneTotal > playerTwoTotal ? "Player one wins!!" : "Player two wins!!";
+            pits.replaceAll((pit, stones) -> {
+                if (pit == PLAYER_ONE_KALAH) {
+                    return Math.toIntExact(playerOneTotal);
+                } else if (pit == PLAYER_TWO_KALAH) {
+                    return Math.toIntExact(playerTwoTotal);
+                } else {
+                    return 0;
+                }
+            });
+        }
+        return result;
     }
 }
