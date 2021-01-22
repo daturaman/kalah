@@ -34,11 +34,21 @@ public class GameResource {
         return Response.status(CREATED).entity(gameService.create()).build();
     }
 
+    /**
+     * Returns all existing games.
+     *
+     * @return a {@link Response} containing all the games as a json object.
+     */
     @GET
     public Response findAll() {
         return Response.status(OK).entity(gameService.read()).build();
     }
 
+    /**
+     * Gets the {@link Game} identified by the resource ID.
+     *
+     * @return a {@link Response} containing the game identified by the resource ID.
+     */
     @GET
     @Path("{id}")
     public Response find(@PathParam("id") int id) {
@@ -46,6 +56,11 @@ public class GameResource {
         return Response.status(OK).entity(game).build();
     }
 
+    /**
+     * Performs one move in the game, specified by the game ID and pit  ID.
+     *
+     * @return a {@link Response} containing the game in its revised state after implementing the requested move.
+     */
     @PUT
     @Path("{id}/pits/{pitId}")
     public Response move(@PathParam("id") int id, @PathParam("pitId") int pitId) {
