@@ -145,7 +145,16 @@ class GameServiceTest {
         game = gameService.move(game.getId(), 5);
         game = gameService.move(game.getId(), 10);
         game = gameService.move(game.getId(), 3);
+        game = gameService.move(game.getId(), 13);
+        game = gameService.move(game.getId(), 1);
+        game = gameService.move(game.getId(), 12);
+        game = gameService.move(game.getId(), 8);
+        game = gameService.move(game.getId(), 2);
+        game = gameService.move(game.getId(), 3);
+        game = gameService.move(game.getId(), 13);
         System.out.println(game.getStatus());
+        System.out.println(game.isPlayerTwoTurn() ? "PLayer two turn" : "Player one turn");
+        assertEquals("Player one wins!!" , game.getResult());;
     }
 
     @Test

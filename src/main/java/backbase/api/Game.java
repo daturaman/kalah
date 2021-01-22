@@ -54,6 +54,11 @@ public class Game {
         return status;
     }
 
+    @JsonProperty
+    public String getResult() {
+        return result;
+    }
+
     public boolean isPlayerTwoTurn() {
         return playerTwoTurn;
     }

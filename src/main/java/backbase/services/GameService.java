@@ -116,17 +116,25 @@ public class GameService {
         clearPit(pitId, pits);
         final Iterator<Map.Entry<Integer, Integer>> pitIterator = Iterators.cycle(pits.entrySet());
         cycleToStart(pitId, pitIterator);
-        playerTwoTurn = sowPits(playerTwoTurn, pits, stoneCount, pitIterator);
 
-        //TODO if player has no stones left, add other player's remaining stones to their kalah and perform final tally
-
-        final Game updated = new Game(gameId, game.getUrl(), pits, playerTwoTurn, null);
+        final Game updated = sowPits(game, pits, stoneCount, pitIterator);
         gamesCache.replace(gameId, updated);
         return updated;
     }
 
-    private boolean sowPits(boolean playerTwoTurn, Map<Integer, Integer> pits, int stoneCount,
+    private String getGameResult(Map<Integer, Integer> pits, String result, List<Integer> playerPits) {
+        if (pits.entrySet().stream().filter(pit -> playerPits.contains(pit.getKey())).allMatch(pit -> pit.getValue() == 0)) {
+            final long playerOneTotal = pits.keySet().stream().filter(playerOnePits::contains).count() + pits.get(PLAYER_ONE_KALAH);
+            final long playerTwoTotal = pits.keySet().stream().filter(playerTwoPits::contains).count() + pits.get(PLAYER_TWO_KALAH);
+            result = playerOneTotal > playerTwoTotal ? "Player one wins!!" : "Player two wins!!";
+        }
+        return result;
+    }
+
+    private Game sowPits(Game game, Map<Integer, Integer> pits, int stoneCount,
             Iterator<Map.Entry<Integer, Integer>> pitIterator) {
+        boolean playerTwoTurn = game.isPlayerTwoTurn();
+        String result = null;
         for (; stoneCount > 0; stoneCount--) {
             Map.Entry<Integer, Integer> currentPit = pitIterator.next();
             Integer currentPitId = currentPit.getKey();
@@ -138,7 +146,6 @@ public class GameService {
             }
 
             currentPit.setValue(currentPit.getValue() + 1);
-
             //Evaluate where last stone placed
             if (stoneCount == 1) {
                 if (!playerTwoTurn) {
@@ -151,6 +158,7 @@ public class GameService {
                     } else {
                         playerTwoTurn = true;
                     }
+                    result = getGameResult(pits, result, playerOnePits);
                 } else {
                     if (currentPitId == PLAYER_TWO_KALAH) {
                         break;
@@ -161,10 +169,11 @@ public class GameService {
                     } else {
                         playerTwoTurn = false;
                     }
+                    result = getGameResult(pits, result, playerTwoPits);
                 }
             }
         }
-        return playerTwoTurn;
+        return new Game(game.getId(), game.getUrl(), pits, playerTwoTurn, result);
     }
 
     private void cycleToStart(int pitId, Iterator<Map.Entry<Integer, Integer>> pitIterator) {
